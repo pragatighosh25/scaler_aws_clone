@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-aws-navy: #232f3e;
+  --color-aws-navy-dark: #161e2d;
+  --color-aws-orange: #ff9900;
+  --color-aws-orange-hover: #ec7211;
+  --color-aws-blue: #0073bb;
+  --color-aws-blue-hover: #005a91;
+  
+  --color-panel-bg-light: #ffffff;
+  --color-panel-bg-dark: #1e293b;
+  
+  --color-border-light: #eaeded;
+  --color-border-dark: #334155;
+  
+  --color-bg-light: #f8f9fa;
+  --color-bg-dark: #0f172a;
+
+  --color-text-light-primary: #111827;
+  --color-text-light-secondary: #4b5563;
+  --color-text-dark-primary: #f8fafc;
+  --color-text-dark-secondary: #94a3b8;
+}
+
+:root {
+  --background: #f8f9fa;
+  --foreground: #111827;
+}
+
+.dark {
+  --background: #0f172a;
+  --foreground: #f8fafc;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* AWS Dashboard Style Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Micro-animations */
+.transition-all-200 {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-glow {
+  transition: all 0.2s ease;
+}
+.hover-glow:hover {
+  box-shadow: 0 0 12px rgba(255, 153, 0, 0.15);
+}

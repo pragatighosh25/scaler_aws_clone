@@ -1,0 +1,6 @@
+{
+  "python.defaultInterpreterPath": "d:\\scaler_aws_clone\\backend\\.venv\\Scripts\\python.exe",
+  "python.analysis.extraPaths": [
+    "d:\\scaler_aws_clone\\backend"
+  ]
+}
