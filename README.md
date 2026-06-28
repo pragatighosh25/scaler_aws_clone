@@ -10,22 +10,81 @@ A comprehensive web application that mimics the core functionalities of AWS Rout
 - **User Isolation**: Secure architecture ensuring each user can only access and manage their own hosted zones and records.
 - **Modern UI**: A responsive, aesthetically pleasing interface with full Dark Mode support, powered by Tailwind CSS.
 
-## Tech Stack
+## Architecture Overview
 
-**Frontend**
-- Next.js (React Framework)
-- TypeScript
-- Tailwind CSS
-- Lucide React (Icons)
+The application follows a decoupled client-server architecture:
 
-**Backend**
-- FastAPI (Python Web Framework)
-- SQLAlchemy (ORM)
-- SQLite (Persistent Database)
+1. **Frontend (Next.js)**:
+   - Built with Next.js App Router and React.
+   - Handles the user interface, routing, and client-side state.
+   - Styled using Tailwind CSS and modern UI components.
+   - Communicates with the backend via RESTful API calls (`src/lib/api.ts`).
 
-## Deployment
+2. **Backend (FastAPI)**:
+   - A high-performance Python backend built with FastAPI.
+   - Exposes RESTful API endpoints for authentication, hosted zones, and DNS records.
+   - Uses SQLAlchemy as the ORM to interact with the database.
+   - Enforces user isolation by tying hosted zones and records to specific user IDs.
 
-For detailed, step-by-step instructions on how to deploy this project to production (e.g., hosting the frontend on Vercel and the backend on Railway), please refer to the [Deployment Guide](./deployment_guide.md).
+3. **Database (SQLite)**:
+   - A persistent SQLite database (`.db` file) is used for local storage.
+   - Can be easily swapped out for PostgreSQL or MySQL in production via environment variables.
+
+## Database Schema
+
+The core database schema consists of four main tables:
+
+1. **Users (`users`)**
+   - `id` (Integer, Primary Key)
+   - `username` (String, Unique)
+   - `password_hash` (String)
+   - `aws_account_id` (String, Unique)
+
+2. **Hosted Zones (`hosted_zones`)**
+   - `id` (String, Primary Key)
+   - `name` (String, e.g., `example.com.`)
+   - `comment` (String, Optional)
+   - `private_zone` (Boolean)
+   - `user_id` (Integer, Foreign Key to `users.id`)
+
+3. **DNS Records (`dns_records`)**
+   - `id` (String, Primary Key)
+   - `hosted_zone_id` (String, Foreign Key to `hosted_zones.id`)
+   - `name` (String, e.g., `www.example.com.`)
+   - `type` (String, e.g., A, AAAA, CNAME, TXT)
+   - `ttl` (Integer, e.g., 300)
+   - `values` (String, Newline-separated)
+   - `routing_policy` (String)
+   - `weight` (Integer, Optional)
+
+4. **DNS Changes (`dns_changes`)**
+   - `id` (String, Primary Key)
+   - `hosted_zone_id` (String)
+   - `status` (String, e.g., PENDING, INSYNC)
+   - `submitted_at` (DateTime)
+   - `comment` (String, Optional)
+
+## API Overview
+
+The FastAPI backend exposes the following key REST endpoints (interactive documentation is available at `/docs` when running the backend):
+
+### Authentication (`/api/auth`)
+- `POST /api/auth/register`: Register a new user account.
+- `POST /api/auth/login`: Authenticate a user and return an access token.
+
+### Hosted Zones (`/2013-04-01/hostedzone`)
+- `GET /2013-04-01/hostedzone`: List all hosted zones for the authenticated user.
+- `POST /2013-04-01/hostedzone`: Create a new hosted zone.
+- `GET /2013-04-01/hostedzone/{id}`: Get details of a specific hosted zone.
+- `DELETE /2013-04-01/hostedzone/{id}`: Delete a hosted zone.
+
+### DNS Records (`/2013-04-01/hostedzone/{id}/rrset`)
+- `GET /2013-04-01/hostedzone/{id}/rrset`: List all DNS records in a hosted zone.
+- `POST /2013-04-01/hostedzone/{id}/rrset`: Change (Create, Update, Delete) DNS records in a hosted zone.
+
+### Import/Export (`/api/import`, `/api/export`)
+- `POST /api/import/bind`: Import a BIND zone file into a hosted zone.
+- `GET /api/export/bind/{zone_id}`: Export a hosted zone's records to BIND format.
 
 ## Local Development Setup
 
@@ -84,6 +143,6 @@ Follow these steps to run the project locally on your machine.
    ```
    The backend API will be accessible at `http://localhost:8000`. You can view the automatic API documentation (Swagger UI) at `http://localhost:8000/docs`.
 
-## Database Management
+## Deployment
 
-The backend uses a local SQLite database (`.db` file) by default. When deploying to production services like Railway, it is important to configure a persistent volume mount so the database file is retained across deployments, or switch to a managed PostgreSQL/MySQL database by updating the `DATABASE_URL` environment variable.
+For detailed instructions on deploying this project to production (e.g., hosting the frontend on Vercel and the backend on Railway), please refer to the [Deployment Guide](./deployment_guide.md).
